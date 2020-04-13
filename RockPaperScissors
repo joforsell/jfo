@@ -1,0 +1,98 @@
+//
+//  ContentView.swift
+//  RockPaperScissors
+//
+//  Created by user169251 on 4/12/20.
+//  Copyright © 2020 JohanForsell. All rights reserved.
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    
+    @State private var winOrLose = Bool.random()
+    @State private var compMove = Int.random(in: 0...2)
+    @State private var currentScore = 0
+
+    var possibleMoves = ["Rock", "Paper", "Scissors"]
+    
+    var shouldWin: String {
+        if winOrLose == true {
+            return "Win"
+        } else {
+            return "Lose"
+        }
+    }
+    
+    func next() -> Int {
+        compMove = compMove.advanced(by: 1)
+        compMove = compMove > possibleMoves.endIndex ? possibleMoves.startIndex : compMove
+        return compMove
+    }
+    
+    func previous() -> Int {
+        compMove = compMove.advanced(by: -1)
+        compMove = compMove < possibleMoves.startIndex ? possibleMoves.endIndex : compMove
+        return compMove
+    }
+    
+    var correctMove: Int {
+        if winOrLose == true {
+            return next()
+        } else {
+            return previous()
+        }
+    }
+
+    var body: some View {
+        VStack {
+            Section(header: Text("Computer's choice")) {
+            Text("\(possibleMoves[compMove])")
+            }
+            Spacer()
+                .frame(height: 20)
+
+            Section(header: Text("I want you to...")) {
+            Text("\(shouldWin)")
+            }
+            Spacer()
+                .frame(height: 20)
+            
+            Section(header: Text("Current score:")) {
+                Text("\(currentScore)")
+            }
+            Spacer()
+                .frame(height: 20)
+
+            HStack {
+                ForEach(0..<3) { number in
+                    Button(action: {
+                        self.choiceMade(number);
+                        self.nextRound()
+                    })  {
+                        Text("\(self.possibleMoves[number])")
+                    }
+                }
+        }
+    }
+}
+    func choiceMade(_ number: Int) {
+        if number == correctMove {
+            currentScore += 1
+        } else {
+            currentScore -= 1
+        }
+    }
+    func nextRound() {
+        compMove = Int.random(in: 0...2)
+        winOrLose = Bool.random()
+    }
+}
+
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
