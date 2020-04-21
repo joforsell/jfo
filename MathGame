@@ -1,0 +1,147 @@
+//
+//  ContentView.swift
+//  MathsGame
+//
+//  Created by user169251 on 4/16/20.
+//  Copyright © 2020 JohanForsell. All rights reserved.
+//
+
+import SwiftUI
+import UIKit
+
+struct ContentView: View {
+        
+    @State private var gameOn = true // Is game running or not
+    @State private var multipTable = 2 // Selection of multiplication table
+    var numberOfQuestions = ["5", "10", "20", "All"] // Available choices for number of questions
+    @State private var numberOfQuestion = 0 // Selected number of questions
+    @State private var answer = ""
+    @State private var score = 0
+    @State private var multiplier = Int.random(in: 1...10)
+    
+    var body: some View {
+    ZStack {
+        
+        // MARK: - Settings
+        ZStack {
+        Image("155")
+            VStack {
+                Text("Pick the multiplication table \n  you would like to practice")
+                    .font(.headline)
+                    .background(Rectangle()
+                        .fill(Color.white.opacity(0.4))
+                        .cornerRadius(16)
+                        .frame(width: 300, height: 80))
+                    .padding(.bottom, 20)
+                
+                // Multiplication table selector
+                HStack(spacing: 10) {
+                    ForEach(1..<11) { number in
+                            
+                        Rectangle()
+                            .frame(width: 30, height: 30, alignment: .center)
+                            .foregroundColor(number == self.multipTable ? Color(.gray) : Color(.black))
+                            .animation(.default)
+                            .cornerRadius(8)
+                            .overlay(
+                                Button(action: {
+                                    self.multipTable = number
+                                }) {
+                                    Text("\(number)")
+                                        .foregroundColor(.white)
+                                        .bold()
+                                })
+                            }
+                        }
+                    .padding(.top, 40)
+                    .padding(.bottom, 100)
+                
+                Text("Pick the number of questions\n    you would like to answer")
+                    .font(.headline)
+                    .background(Rectangle()
+                        .fill(Color.white.opacity(0.4))
+                        .cornerRadius(16)
+                        .frame(width: 300, height: 80))
+                    .padding(.bottom, 20)
+                
+                // Question amount selector
+                Picker("How many questions do you want to answer?", selection: $numberOfQuestion) {
+                    ForEach(0 ..< numberOfQuestions.count) { number in
+                        Text("\(self.numberOfQuestions[number])")
+                    }
+                }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .frame(width: 300, height: 36)
+                .background(Rectangle()
+                    .fill(Color.purple)
+                    .cornerRadius(10))
+                
+                // Start game button
+                Rectangle()
+                    .frame(width: 140, height: 80, alignment: .center)
+                    .foregroundColor(Color.purple)
+                    .animation(.default)
+                    .cornerRadius(10)
+                    .overlay(
+                        Button(action: {
+                            self.gameOn.toggle()
+                            }
+                        ) { Text("Play!")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                    })
+                    .padding(.top, 100)
+                }
+            }
+        
+            // MARK: - Game
+            if gameOn {
+                ZStack {
+                Image("155")
+                    VStack {
+                        Text("How much is")
+                            .font(.title)
+                        Text("\(multipTable) x \(multiplier)?")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.bottom, 200)
+                            .frame(width: 400, height: 300)
+                        Text("Score: \(score)")
+                            .font(.largeTitle)
+                        HStack {
+                        TextField("Answer", text: $answer)
+                            .frame(width: 200, height: 40)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                        Circle()
+                            .frame(width: 30, height: 30)
+                            .foregroundColor(.purple)
+                            .overlay(
+                                Button(action: {
+                                self.sendAnswer()
+                                }
+                                ) { Image(systemName: "arrow.right").foregroundColor(.white)
+                            })
+                        }
+                        .offset(x: 15)
+                    }
+                }
+            }
+        }
+    }
+    
+    func sendAnswer() {
+        let correctAnswer = multipTable * multiplier
+        if Int(answer) == correctAnswer {
+            score += 1
+        }
+        return
+    }
+}
+
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
