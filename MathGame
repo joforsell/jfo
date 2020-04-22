@@ -8,16 +8,35 @@
 
 import SwiftUI
 import UIKit
+import Foundation
 
 struct ContentView: View {
         
-    @State private var gameOn = true // Is game running or not
+    @State private var gameOn = false // Is game running or not
+    @State private var gameFinished = false // Is game finished or not
     @State private var multipTable = 2 // Selection of multiplication table
     var numberOfQuestions = ["5", "10", "20", "All"] // Available choices for number of questions
     @State private var numberOfQuestion = 0 // Selected number of questions
-    @State private var answer = ""
-    @State private var score = 0
-    @State private var multiplier = Int.random(in: 1...10)
+    @State private var answer = "" // Empty answer string to be filled using numpad
+    @State private var score = 0 // Current score
+    @State private var multiplier = Int.random(in: 1...10) // Randomized multiplier for game
+    @State private var answerCollection = [""] // Array to collect question/answer pairs
+    
+    // Getting number of questions selection as Int
+    var questionsInt: Int {
+        switch numberOfQuestion {
+            case 0:
+                return 5
+            case 1:
+                return 10
+            case 2:
+                return 20
+            case 3:
+                return 10
+            default:
+                return 10
+        }
+    }
     
     var body: some View {
     ZStack {
@@ -65,16 +84,13 @@ struct ContentView: View {
                     .padding(.bottom, 20)
                 
                 // Question amount selector
-                Picker("How many questions do you want to answer?", selection: $numberOfQuestion) {
+                Picker("What", selection: $numberOfQuestion) {
                     ForEach(0 ..< numberOfQuestions.count) { number in
                         Text("\(self.numberOfQuestions[number])")
                     }
                 }
                     .pickerStyle(SegmentedPickerStyle())
                     .frame(width: 300, height: 36)
-                .background(Rectangle()
-                    .fill(Color.purple)
-                    .cornerRadius(10))
                 
                 // Start game button
                 Rectangle()
@@ -101,29 +117,187 @@ struct ContentView: View {
                     VStack {
                         Text("How much is")
                             .font(.title)
+                            .foregroundColor(.white)
                         Text("\(multipTable) x \(multiplier)?")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .padding(.bottom, 200)
-                            .frame(width: 400, height: 300)
+                            .padding(.bottom, 100)
+                            .frame(width: 400)
+                            .foregroundColor(.white)
+                            .offset(x: 10)
                         Text("Score: \(score)")
                             .font(.largeTitle)
-                        HStack {
-                        TextField("Answer", text: $answer)
-                            .frame(width: 200, height: 40)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.numberPad)
-                        Circle()
-                            .frame(width: 30, height: 30)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.white)
+                        Rectangle()
+                            .frame(width: 200, height: 50)
+                            .foregroundColor(.white)
+                            .cornerRadius(18)
                             .overlay(
-                                Button(action: {
-                                self.sendAnswer()
-                                }
-                                ) { Image(systemName: "arrow.right").foregroundColor(.white)
-                            })
+                                Text(answer))
+                        // Numpad grid
+                        VStack {
+                            HStack(spacing: 4) {
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "1"})
+                                    {Text("1")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                    })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "2"})
+                                    {Text("2")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                        })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "3"})
+                                    {Text("3")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                            }
+                            HStack(spacing: 4) {
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "4"})
+                                    {Text("4")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "5"})
+                                    {Text("5")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "6"})
+                                    {Text("6")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                            }
+                            HStack(spacing: 4) {
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "7"})
+                                    {Text("7")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "8"})
+                                    {Text("8")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "9"})
+                                    {Text("9")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                })
+                            }
+                            HStack(spacing: 8) {
+                                Circle()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.purple)
+                                    .overlay(
+                                        Button(action: {self.answer = ""})
+                                        {Image(systemName: "arrow.left").foregroundColor(.white)
+                                    })
+                                Rectangle()
+                                    .frame(width: 70, height: 70)
+                                    .cornerRadius(18)
+                                    .foregroundColor(.purple)
+                                    .overlay(Button(action: {self.answer += "0"})
+                                    {Text("0")
+                                        .font(.largeTitle)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                    })
+                                Circle()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.purple)
+                                    .overlay(
+                                        Button(action: {self.sendAnswer()})
+                                        {Image(systemName: "arrow.right").foregroundColor(.white)
+                                    })
+                            }
                         }
-                        .offset(x: 15)
+                    }
+                    
+                    // MARK: - Game finished window
+                    if gameFinished {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 400, height: 800)
+                                .cornerRadius(20)
+                                .foregroundColor(.purple)
+                                .shadow(radius: 10)
+                                .animation(.default)
+
+                            VStack {
+                                ForEach(answerCollection, id: \.self) { item in
+                                    Text("\(item)")
+                                }
+                            }
+                            HStack(spacing: 100) {
+                                Rectangle()
+                                    .frame(width: 140, height: 80)
+                                    .foregroundColor(.purple)
+                                    .overlay(
+                                        Button(action: {
+                                            self.gameOn.toggle()
+                                            self.gameFinished.toggle()
+                                            self.answerCollection.removeAll()
+                                        }) {Text("OK")}
+                                    )
+                                Rectangle()
+                                    .frame(width: 140, height: 80)
+                                    .foregroundColor(.purple)
+                                    .overlay(
+                                        Button(action: {
+                                            self.gameFinished.toggle()
+                                            self.answerCollection.removeAll()
+                                        }) {Text("Try again")}
+                                    )
+                            }
+                        }
                     }
                 }
             }
@@ -132,8 +306,20 @@ struct ContentView: View {
     
     func sendAnswer() {
         let correctAnswer = multipTable * multiplier
-        if Int(answer) == correctAnswer {
+        if Int(answer) == correctAnswer && answerCollection.count < questionsInt {
             score += 1
+            self.multiplier = Int.random(in: 1...10)
+            answerCollection.insert("\(multipTable) x \(multiplier) = \(answer) CORRECT!", at: 0)
+            self.answer = ""
+        } else if Int(answer) != correctAnswer && answerCollection.count < questionsInt {
+            answerCollection.insert("\(multipTable) x \(multiplier) = \(answer) WRONG!", at: 0)
+            self.answer = ""
+        } else if Int(answer) == correctAnswer && answerCollection.count == questionsInt {
+            answerCollection.insert("\(multipTable) x \(multiplier) = \(answer) CORRECT!", at: 0)
+            self.gameFinished.toggle()
+        } else {
+            answerCollection.insert("\(multipTable) x \(multiplier) = \(answer) WRONG!", at: 0)
+            self.gameFinished.toggle()
         }
         return
     }
